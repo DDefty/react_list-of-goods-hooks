@@ -23,7 +23,7 @@ enum SortType {
 }
 
 export const App: React.FC = () => {
-  const [sortType, setSortType] = useState(0);
+  const [sortType, setSortType] = useState(SortType.NONE);
   const [isReversed, setIsReversed] = useState(false);
 
   const originalArr = goodsFromServer;
@@ -32,9 +32,9 @@ export const App: React.FC = () => {
   const getDisplayGoods = () => {
     const result = [...originalArr];
 
-    if (sortType === 1) {
+    if (sortType === SortType.ALPHABET) {
       result.sort((a, b) => a.localeCompare(b));
-    } else if (sortType === 2) {
+    } else if (sortType === SortType.LENGTH) {
       result.sort((a, b) => a.length - b.length);
     }
 
@@ -48,15 +48,15 @@ export const App: React.FC = () => {
   const goods = getDisplayGoods();
 
   const handleSortAlph = () => {
-    setSortType(1);
+    setSortType(SortType.ALPHABET);
   };
 
   const handleSortLength = () => {
-    setSortType(2);
+    setSortType(SortType.LENGTH);
   };
 
   const handleSortReset = () => {
-    setSortType(0);
+    setSortType(SortType.NONE);
     setIsReversed(false);
   };
 
@@ -70,7 +70,9 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={
-            sortType === 1 ? 'button is-info' : 'button is-info is-light'
+            sortType === SortType.ALPHABET
+              ? 'button is-info'
+              : 'button is-info is-light'
           }
           onClick={handleSortAlph}
         >
@@ -80,7 +82,9 @@ export const App: React.FC = () => {
         <button
           type="button"
           className={
-            sortType === 2 ? 'button is-success' : 'button is-success is-light'
+            sortType === SortType.LENGTH
+              ? 'button is-success'
+              : 'button is-success is-light'
           }
           onClick={handleSortLength}
         >
@@ -97,7 +101,7 @@ export const App: React.FC = () => {
           Reverse
         </button>
 
-        {sortType !== 0 || isReversed === true ? (
+        {sortType !== SortType.NONE || isReversed === true ? (
           <button
             type="button"
             className={'button is-danger is-light'}
