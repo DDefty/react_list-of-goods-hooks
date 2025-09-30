@@ -1,9 +1,9 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import 'bulma/css/bulma.css';
 import './App.scss';
 
-export const goodsFromServer = [
+export const goodsFromServer: string[] = [
   'Dumplings',
   'Carrot',
   'Eggs',
@@ -25,12 +25,12 @@ enum SortType {
 export const App: React.FC = () => {
   const [sortType, setSortType] = useState(SortType.NONE);
   const [isReversed, setIsReversed] = useState(false);
+  const [minLength, setMinLength] = useState<number>(0);
 
   const originalArr = goodsFromServer;
 
-  // Calculate the display goods based on current sort type and reverse state
-  const getDisplayGoods = () => {
-    const result = [...originalArr];
+  const goods = useMemo(() => {
+    const result = originalArr.filter(item => item.length >= minLength);
 
     if (sortType === SortType.ALPHABET) {
       result.sort((a, b) => a.localeCompare(b));
@@ -43,9 +43,7 @@ export const App: React.FC = () => {
     }
 
     return result;
-  };
-
-  const goods = getDisplayGoods();
+  }, [sortType, isReversed, minLength, originalArr]);
 
   const handleSortAlph = () => {
     setSortType(SortType.ALPHABET);
@@ -58,14 +56,40 @@ export const App: React.FC = () => {
   const handleSortReset = () => {
     setSortType(SortType.NONE);
     setIsReversed(false);
+    setMinLength(0);
   };
 
   const handleReverse = () => {
     setIsReversed(!isReversed);
   };
 
+  const handleMinLengthChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const value = parseInt(event.target.value, 10);
+
+    setMinLength(isNaN(value) ? 0 : value);
+  };
+
   return (
     <div className="section content">
+      <div className="field">
+        <label className="label" htmlFor="minLengthInput">
+          Filter by minimum length:
+        </label>
+        <div className="control">
+          <input
+            id="minLengthInput"
+            className="input"
+            type="number"
+            value={minLength}
+            onChange={handleMinLengthChange}
+            min="0"
+            placeholder="Enter minimum length"
+          />
+        </div>
+      </div>
+
       <div className="buttons">
         <button
           type="button"
@@ -101,7 +125,7 @@ export const App: React.FC = () => {
           Reverse
         </button>
 
-        {sortType !== SortType.NONE || isReversed === true ? (
+        {sortType !== SortType.NONE || isReversed === true || minLength > 0 ? (
           <button
             type="button"
             className={'button is-danger is-light'}
